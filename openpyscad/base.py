@@ -8,7 +8,7 @@ import os
 
 from .modifiers import ModifierMixin
 
-__all__ = ['Empty', 'BaseObject', 'Scad', 'Import']
+__all__ = ['Empty', 'BaseObject', 'Scad', 'Import', 'Nonevaluated']
 INDENT = '    '
 
 
@@ -220,10 +220,12 @@ class _BaseObject(with_metaclass(MetaObject, ModifierMixin, object)):
                 comment='' if self._comment is None else ' // {}'.format(self._comment)
             )
 
-    def write(self, filename, with_print=False):
+    def write(self, filename, with_print=False, prologue=''):
         with open(filename, 'w') as fp:
+            fp.write(prologue)
             self.dump(fp)
         if with_print:
+            print(prologue)       #   BMA
             print(self.dumps())
 
     def clone(self):
@@ -327,6 +329,7 @@ class _BaseObject(with_metaclass(MetaObject, ModifierMixin, object)):
         return self
 
 
+
 BaseObject = _BaseObject
 
 
@@ -343,3 +346,12 @@ class Scad(_BaseObject):
 
 class Import(_BaseObject):
     pass
+
+
+class Nonevaluated:
+    """Non python evaluated string. OpenSCAD code Only."""
+    def __init__(self, msg):
+        self.non_evaluated = msg
+
+    def __repr__(self):
+        return self.non_evaluated

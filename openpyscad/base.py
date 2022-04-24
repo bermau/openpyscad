@@ -15,17 +15,21 @@ INDENT = '    '
 class MetaObject(type):
 
     object_definition = {
+        # 'key' : ( _name, _properties, _has_child  )
         # Bool
         'union': ('union', (), True),
         'difference': ('difference', (), True),
         'intersection': ('intersection', (), True),
         # Transforms
-        'translate': ('translate', ('v', ), True),
+        'translate': ('translate', ('v', ), True),  # BMA : 'v' is for '[X,y,z]'
         'rotate': ('rotate', ('a', 'v'), True),
         'scale': ('scale', ('v', ), True),
         'resize': ('resize', ('newsize', 'auto'), True),
         'mirror': ('mirror', ('__axis', ), True),
-        'color': ('color', ('__color', 'a'), True),
+        # Signature of color is ambiguous. I want to write : color('color_name', alpha) : example color('pink', 0.5)
+        # must be written as :  color( "red", alpha =0.7) or color( "red", 0.7),
+        # but not :             color( color = "red", alpha =0.7)
+        'color': ('color', ('__color', '__alpha'), True),
         'offset': ('offset', ('r', 'chamfer', '_fn'), True),
         'minkowski': ('minkowski', (), True),
         'hull': ('hull', (), True),
@@ -100,9 +104,12 @@ class _BaseObject(with_metaclass(MetaObject, ModifierMixin, object)):
         return '{}'.format(val)
 
     def _get_params(self, fp=None):
+
+
         valid_keys = list(filter(lambda x: getattr(self, x) is not None, self._properties))
 
         def is_no_keyword_args(arg_name):
+            """True if arg startswith '__' """
             if arg_name[0] == '_' and arg_name[1] == '_':
                 return True
             return False
@@ -111,6 +118,7 @@ class _BaseObject(with_metaclass(MetaObject, ModifierMixin, object)):
             return not is_no_keyword_args(arg_name)
 
         def convert_special_args(arg_name):
+            """Replace _arg type by $arg (usefull for usage of $FN) """
             if arg_name[0] == '_':
                 if arg_name[1] != '_':
                     return '$' + arg_name[1:]
@@ -124,6 +132,7 @@ class _BaseObject(with_metaclass(MetaObject, ModifierMixin, object)):
                     sf = ''.join(os.path.basename(scadfile).split('.')[:-1])
                     scadfile_renamed = sf.lower().strip('_').strip('-')
                     return(scadfile_renamed)
+
                 with open(scadfile) as f:
                     content = f.readlines()
                     content = ''.join(content).rstrip('\n')
@@ -148,10 +157,11 @@ class _BaseObject(with_metaclass(MetaObject, ModifierMixin, object)):
         args = ''
         # no-keyword args
         no_kw_args = list(filter(lambda x: is_no_keyword_args(x), valid_keys))
-        args += ' '.join(map(lambda x: '{},'.format(self._retrieve_value(x)), no_kw_args))[:-1]
+        args += ' '.join( map(lambda x: '{},'.format(self._retrieve_value(x)), no_kw_args))[:-1]
 
         # keyword args
         kw_args = filter(lambda x: is_keyword_args(x), valid_keys)
+        # LE BUG de color sur la ligne suivante. Il manque une virgule
         args += ' '.join(map(lambda x: '{}={},'.format(convert_special_args(x), _get_attr(self, x, fp)), kw_args))[:-1]
         args = args.replace('scadfile=', '')
         return args

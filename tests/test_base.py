@@ -228,6 +228,16 @@ class TestBaseObject(unittest.TestCase):
         self.assertTrue(isinstance(o1, Color))
         self.assertEqual(o1.children, [o])
 
+    def test_color_with_named_color_and_alpha(self):      # BMA
+        o = Cube(10)
+        o1 = o.color('red', 0.1)
+        self.assertEqual(o1._get_params(), '"red", 0.1')
+
+    def test_color_with_6digits_color_and_alpha(self):    # BMA
+        o = Cube(10)
+        o1 = o.color('#AA00FF', 0.1)   # purple-like
+        self.assertEqual(o1._get_params(), '"#AA00FF", 0.1')
+
     def test_offset(self):
         o = Circle(10)
         o1 = o.offset([10, 10, 10])

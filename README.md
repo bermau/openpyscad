@@ -124,6 +124,7 @@ Cube([20, 10, 10]).mirror([1, 1, 1])
 
 # Color
 Cube([20, 10, 10]).color("Red")
+Cube([20,20,30]).color("red", 0.2)
 
 # Offset
 Circle(10).offset(10)

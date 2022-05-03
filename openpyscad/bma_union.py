@@ -107,6 +107,17 @@ class CartesianVolume(Volume):
     def __repr__(self):
         return "CartVolume of [{}, {}, {}], origin in : [{}, {}, {}]".format(self._x, self._y, self._z,
                                                                            self._or_x, self._or_y, self._or_z)
+    @property
+    def abs_x(self):
+        return (self.x + self._or_x)
+
+    @property
+    def abs_y(self):
+        return (self.y + self._or_y)
+
+    @property
+    def abs_z(self):
+        return (self.z + self._or_z)
 
     def measured_volume(self):
         value = self.x * self.y * self.z
@@ -117,8 +128,8 @@ class CartesianVolume(Volume):
                      min(self._or_y, cartvol._or_y),
                      min(self._or_z, cartvol._or_z),]
 
-        volume = [max(self._or_x, cartvol._or_x)+ self.x,
-                  max(self._or_y, cartvol._or_y) + self.y,
-                  max(self._or_z, cartvol._or_z) + self.z
+        volume = [max(self.abs_x, cartvol.abs_x) - min(self._or_x, cartvol._or_x),
+                  max(self.abs_y, cartvol.abs_y) - min(self._or_y, cartvol._or_y),
+                  max(self.abs_z, cartvol.abs_z) - min(self._or_z, cartvol._or_z)
         ]
         return CartesianVolume(volume, origin= new_origin)

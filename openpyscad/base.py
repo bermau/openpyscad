@@ -12,6 +12,7 @@ __all__ = ['Empty', 'BaseObject', 'Scad', 'Import', 'Nonevaluated']
 INDENT = '    '
 
 
+
 class MetaObject(type):
 
     object_definition = {
@@ -70,6 +71,7 @@ class MetaObject(type):
             for param in definition[1]:
                 attr[param] = None
             attr['has_child'] = definition[2]
+            attr['_box_size'] = None   #     size of the volume containing the union
         return type.__new__(mcs, name, bases, attr)
 
 

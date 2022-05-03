@@ -8,23 +8,34 @@ qu'elle représente. Cela permettrait de réaliser des opérations de type : dé
 from openpyscad import *
 
 class Truc():
-    print("passé par Truc")
+    pass
 
 class Volume():
     """Properties for the volume of an 3D object.
-    The volume has an origin in [0, 0, 0]"""
+    Volume has three coordinates, that represent 3 axes dimensions.
+    The volume has an implicit origin in [0, 0, 0]
+
+    volume is always a 3 positif number suites.
+
+    """
 
     def __init__(self, x=None, y=None, z=None):
-        """__init__(10, 20, 30) or __init__([10, 20, 30])"""
+        """__init__(10, 20, 30) or __init__([10, 20, 30]). Data must be positive"""
         if x and isinstance(x, list):
             if len(x) == 3:
-                self._x = x[0]
-                self._y = x[1]
-                self._z = x[2]
+                if x[0] >=0 and x[1] >=0 and x[2] >=0:
+                    self._x = x[0]
+                    self._y = x[1]
+                    self._z = x[2]
+                else:
+                    raise ValueError("Data in Volume must be positive. Received : ", x[0], x[1], x[2] )
         else:
-            self._x = x
-            self._y = y
-            self._z = z
+            if x >=0 and y >= 0 and z >= 0:
+                self._x = x
+                self._y = y
+                self._z = z
+            else:
+                raise ValueError("Data in Volume must be positive. Received : ", x, y, z)
     def __repr__(self):
         return "Volume of [{}, {}, {}]".format(self._x, self._y, self._z)
     # Maybe there is a shortcut to avoid so many repetitions in defining x,y,z a properties
@@ -75,6 +86,7 @@ class Volume():
 
 
     def union(self, vol):
+        """Return the Union with another Volume"""
         self.x = max(self.x, vol.x)
         self.y = max(self.y, vol.y)
         self.z = max(self.z, vol.z)
@@ -84,12 +96,29 @@ class Volume():
 
 
 class CartesianVolume(Volume):
-    def __init__(self, vol:Volume = None ):
-        Volume.__init__(vol)
+    def __init__(self, vol : Volume = None, origin=[0, 0, 0]):
+
+        print(vol, origin)
+        Volume.__init__(self, vol)
         self._or_x = origin[0]
         self._or_y = origin[1]
         self._or_z = origin[2]
 
-    def add(self, cartvol):
+    def __repr__(self):
+        return "CartVolume of [{}, {}, {}], origin in : [{}, {}, {}]".format(self._x, self._y, self._z,
+                                                                           self._or_x, self._or_y, self._or_z)
 
-        return self
+    def measured_volume(self):
+        value = self.x * self.y * self.z
+        return value
+
+    def add(self, cartvol):
+        new_origin = [min(self._or_x, cartvol._or_x),
+                     min(self._or_y, cartvol._or_y),
+                     min(self._or_z, cartvol._or_z),]
+
+        volume = [max(self._or_x, cartvol._or_x)+ self.x,
+                  max(self._or_y, cartvol._or_y) + self.y,
+                  max(self._or_z, cartvol._or_z) + self.z
+        ]
+        return CartesianVolume(volume, origin= new_origin)

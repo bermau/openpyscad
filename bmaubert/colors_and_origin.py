@@ -1,5 +1,10 @@
-
+import sys, os
+sys.path.insert(
+    0,
+    "/".join(os.path.dirname(os.path.abspath(__file__)).split("/")[:-1])
+)
 from openpyscad import *
+
 
 eps = 0.01
 X_LONG = 800

@@ -1,0 +1,12 @@
+
+
+Je créer mes fichiers de mis au point dans le répertoire no_git_at_all
+
+Ces fichiers commencent par la structure suivante pour modifier le pythonpath :
+   A COPIER
+
+Je crée mes classes dans un fichier ("bma_union.py") ,situé dans le répertoire openpyscad. Dans ce répertoire, le fichier __init__.py indique les noms de classe à importer.
+
+Sous Pycharm, j'utilise l'interpréteur de Python 3.9 avec le venv que j'ai nommé openpyscad. Cet interpréteur ne comprend que les packages python suivants :
+pip, setuptool, six, wheel.
+
